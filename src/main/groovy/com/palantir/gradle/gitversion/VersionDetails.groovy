@@ -64,6 +64,9 @@ class VersionDetails implements Serializable {
     }
 
     public String getLastTag() {
+        if (descriptionIsPlainCommitHash()) {
+            return null;
+        }
         if (descriptionIsPlainTag()) {
             return description;
         }
@@ -71,6 +74,10 @@ class VersionDetails implements Serializable {
         Matcher match = (description =~ /(.*)-([0-9]+)-g.?[0-9a-fA-F]{3,}/)
         String tagName = match[0][1]
         return tagName;
+    }
+
+    boolean descriptionIsPlainCommitHash() {
+        return gitHash.startsWith(description);
     }
 
     private boolean descriptionIsPlainTag() {

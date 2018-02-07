@@ -463,6 +463,28 @@ class GitVersionPluginTests extends Specification {
         then:
         buildResult.output =~ ":printVersionDetails\n1.0.0\n"
     }
+    
+    def 'last tag is null when description is commit hash' () {
+        given:
+        buildFile << '''
+            plugins {
+                id 'com.palantir.git-version'
+            }
+            task printVersionDetails() << {
+                println versionDetails().lastTag
+            }
+        '''.stripIndent()
+        gitIgnoreFile << 'build'
+        Git git = Git.init().setDirectory(projectDir).call()
+        git.add().addFilepattern('.').call()
+        git.commit().setMessage('initial commit').call()
+
+        when:
+        BuildResult buildResult = with('printVersionDetails').build()
+
+        then:
+        buildResult.output =~ ":printVersionDetails\nnull\n"
+    }
 
     def 'git describe with commit after annotated tag' () {
         given:
